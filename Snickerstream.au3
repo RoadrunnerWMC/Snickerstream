@@ -39,7 +39,7 @@ Opt("MustDeclareVars",1)
 Global $g_hGUI, $g_hGfxCtxt, $g_hBitmap, $g_hBMP, $g_hBMP2, $g_hGraphics, $iFPS = 0, $iInterpolation = 0, _
 		$aWinResize, $aWinResize2, $ix1BMP1 = 0, $ix2BMP1 = 0, $ix1BMP2 = 0, $ix2BMP2 = 0, $iy1BMP1 = 0, $iy2BMP1 = 0, $iy1BMP2 = 0, $iy2BMP2 = 0, _
 		$iLayoutmode = 0, $bNoDisplayIPWarn = 0, $bD2D = True, $iListenPort = 8001, $bFullscreenPopup = False
-Global Const $sVersion = "v1.10", $sGUITitle = "Snickerstream " & $sVersion, $sIconPath=@TempDir&"\snickerstream.ico"
+Global Const $sVersion = "v1.10 (IP address input mod)", $sGUITitle = "Snickerstream " & $sVersion, $sIconPath=@TempDir&"\snickerstream.ico"
 
 ;Globals - Main and Advanced GUI
 Global $sIpAddr = "0.0.0.0", $iPriorityMode = 0, $iPriorityFactor = 5, $iImageQuality = 70, $iQoS = 20, $AdvancedMenu = 0, $aHotkeys[10] = ["26","28","25","27","0D","53","20","1B","51","45"]
@@ -709,8 +709,8 @@ Func CreateMainGUIandSettings()
 	Local $Label3 = GUICtrlCreateLabel("Priority factor", 24, 82, 65, 17, $SS_CENTERIMAGE)
 	Local $Label4 = GUICtrlCreateLabel("Image quality", 24, 106, 66, 17, $SS_CENTERIMAGE)
 	Global $Label5 = GUICtrlCreateLabel("QoS Value", 24, 130, 85, 17, $SS_CENTERIMAGE)
-	Global $GUI_IpAddr = _GUICtrlIpAddress_Create($SnickerstreamGUI, 104, 24, 105, 17)
-	_GUICtrlIpAddress_Set($GUI_IpAddr, "0.0.0.0")
+	Global $GUI_IpAddr = GUICtrlCreateInput($SnickerstreamGUI, 104, 24, 105, 17)
+	GUICtrlSetData($GUI_IpAddr, "0.0.0.0")
 	Global $GUI_PriorityMode = GUICtrlCreateCombo("", 104, 50, 105, 25, BitOR($CBS_DROPDOWNLIST, $CBS_AUTOHSCROLL))
 	GUICtrlSetData(-1, "Top screen|Bottom screen", "Top screen")
 	Global $GUI_PriorityFactor = GUICtrlCreateInput("5", 104, 80, 105, 21, BitOR($GUI_SS_DEFAULT_INPUT, $ES_NUMBER))
@@ -752,7 +752,7 @@ Func CreateMainGUIandSettings()
 	GUICtrlSetLimit($GUI_QoS, 3)
 
 	;This is needed in case the config file was loaded so it'll be shown correctly
-	_GUICtrlIpAddress_Set($GUI_IpAddr, $sIpAddr)
+	GUICtrlSetData($GUI_IpAddr, $sIpAddr)
 	_GUICtrlComboBox_SetCurSel($GUI_PriorityMode, $iPriorityMode)
 	GUICtrlSetData($GUI_PriorityFactor, $iPriorityFactor)
 	GUICtrlSetData($GUI_ImageQuality, $iImageQuality)
@@ -774,7 +774,7 @@ EndFunc   ;==>CreateMainGUIandSettings
 
 Func UpdateVars()
 	;We need to call this function when the user clicked on connect/saving presets to correctly update the variables
-	$sIpAddr = _GUICtrlIpAddress_Get($GUI_IpAddr)
+	$sIpAddr = GUICtrlRead($GUI_IpAddr)
 	$iPriorityMode = Int(Not _GUICtrlComboBox_GetCurSel($GUI_PriorityMode))
 	$iPriorityFactor = Int(GUICtrlRead($GUI_PriorityFactor))
 	$iImageQuality = Int(GUICtrlRead($GUI_ImageQuality))
@@ -1173,8 +1173,8 @@ Func AdvMenu()
 	Local $LabelA3 = GUICtrlCreateLabel("Loglevel:", 8, 42, 47, 17, $SS_CENTERIMAGE)
 	Global $LoglevelInput = GUICtrlCreateInput($iLogLevel, 128, 40, 41, 21, BitOR($GUI_SS_DEFAULT_INPUT,$ES_NUMBER))
 	Local $LabelA4 = GUICtrlCreateLabel("PC IP Address:", 208, 10, 75, 17, $SS_CENTERIMAGE)
-	Global $IPAddressInput = _GUICtrlIpAddress_Create($AdvancedMenu, 304, 8, 101, 17)
-	_GUICtrlIpAddress_Set($IPAddressInput, $sPCIpAddr)
+	Global $IPAddressInput = GUICtrlCreateInput($AdvancedMenu, 304, 8, 101, 17)
+	GUICtrlSetData($IPAddressInput, $sPCIpAddr)
 	Local $LabelA5 = GUICtrlCreateLabel("Frame limit:", 8, 66, 56, 17, $SS_CENTERIMAGE)
 	Global $FrameLimitInput = GUICtrlCreateInput(IniRead($sFname, $sSectionName, $aIniSections[15], 0), 128, 64, 41, 21, BitOR($GUI_SS_DEFAULT_INPUT,$ES_NUMBER))
 	Local $LabelA6 = GUICtrlCreateLabel("Wait for remoteplay (ms):", 8, 234, 132, 17, $SS_CENTERIMAGE)
@@ -1368,7 +1368,7 @@ Func ApplyAdvSettings()
 	If $bError=False Then
 		IniWrite($sFname, $sSectionName, $aIniSections[20], $iPort)	;Port
 		$iListenPort = $iPort
-		$sPCIpAddr=_GUICtrlIpAddress_Get($IPAddressInput)
+		$sPCIpAddr=GUICtrlRead($IPAddressInput)
 		IniWrite($sFname, $sSectionName, $aIniSections[7], $sPCIpAddr)	;PC IP Address
 		CheckPCIP()
 		IniWrite($sFname, $sSectionName, $aIniSections[9], $iLogLevelRead)	;Loglevel
